@@ -1,10 +1,9 @@
 import {Container} from 'react-bootstrap'
 import Login from "./components/Login";
 import Memos from "./components/Memos";
-import {createMemo, deleteMemo} from './services/memos'
 import {connect} from "react-redux";
 import {initiateLogin, logout} from "./modules/user";
-import {initiateCreateMemo, initiateGetMemos} from "./modules/memos";
+import {initiateCreateMemo, initiateDeleteMemo} from "./modules/memos";
 
 function App({
                  dispatch,
@@ -14,45 +13,20 @@ function App({
                  getMemosPending,
                  getMemosFailure,
                  memos}) {
-
-    function handleError(error) {
-        console.log(error)
-    }
-
-    function handleRequestMemos() {
-        dispatch(initiateGetMemos())
-    }
-
-    function handleLoginRequest(username, password) {
-        dispatch(initiateLogin({username, password}))
-    }
-
-    function handleLogoutRequest() {
-        dispatch(logout())
-    }
-
-    function handleCreateMemo(memo) {
-        dispatch(initiateCreateMemo(memo))
-    }
-
-    function handleDeleteMemo(memo) {
-        deleteMemo(token, memo).then(data => data.json(), handleError).then(json => {
-            handleRequestMemos()
-        }, handleError).catch(handleError)
-    }
-
     return (
         <Container>
             {
                 token ?
                     <Memos
-                        handleLogoutRequest={handleLogoutRequest}
-                        handleCreateMemo={handleCreateMemo}
+                        handleLogoutRequest={() => dispatch(logout())}
+                        handleCreateMemo={memo => dispatch(initiateCreateMemo(memo))}
                         memos={memos}
-                        handleDeleteMemo={handleDeleteMemo}
+                        handleDeleteMemo={memo => dispatch(initiateDeleteMemo(memo))}
+                        getMemosPending={getMemosPending}
+                        getMemosFailure={getMemosFailure}
                     /> :
                     <Login
-                        handleLoginRequest={handleLoginRequest}
+                        handleLoginRequest={(username, password) => dispatch(initiateLogin({username, password}))}
                         loginPending={loginPending}
                         loginFailure={loginFailure}
                     />

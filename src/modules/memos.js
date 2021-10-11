@@ -1,4 +1,4 @@
-import {requestMemos, createMemo} from "../services/memos";
+import {requestMemos, createMemo, deleteMemo} from "../services/memos";
 
 // Actions
 const GET_MEMOS_REQUEST = 'memos/memos/GET_MEMOS_REQUEST'
@@ -9,6 +9,10 @@ const CREATE_MEMO_REQUEST = 'memos/memos/CREATE_MEMO_REQUEST'
 const CREATE_MEMO_SUCCESS = 'memos/memos/CREATE_MEMO_SUCCESS'
 const CREATE_MEMO_FAILURE = 'memos/memos/CREATE_MEMO_FAILURE'
 
+const DELETE_MEMO_REQUEST = 'memos/memos/DELETE_MEMO_REQUEST'
+const DELETE_MEMO_SUCCESS = 'memos/memos/DELETE_MEMO_SUCCESS'
+const DELETE_MEMO_FAILURE = 'memos/memos/DELETE_MEMO_FAILURE'
+
 // Reducer
 const initialState = {
     getMemosPending: false,
@@ -16,6 +20,8 @@ const initialState = {
     memos: [],
     createMemoPending: false,
     createMemoFailure: false,
+    deleteMemoPending: false,
+    deleteMemoFailure: false,
 }
 
 export default function reducer(state = initialState, action) {
@@ -55,6 +61,23 @@ export default function reducer(state = initialState, action) {
                 createMemoFailure: true
             }
 
+        case DELETE_MEMO_REQUEST:
+            return {...state, deleteMemoPending: true}
+
+        case DELETE_MEMO_SUCCESS:
+            return {
+                ...state,
+                deleteMemoPending: false,
+                deleteMemoFailure: false
+            }
+
+        case DELETE_MEMO_FAILURE:
+            return {
+                ...state,
+                deleteMemoPending: false,
+                deleteMemoFailure: true
+            }
+
         default:
             return state
     }
@@ -86,6 +109,18 @@ function createMemoSuccess() {
 
 function createMemoFailure() {
     return {type: CREATE_MEMO_FAILURE}
+}
+
+function deleteMemoRequest() {
+    return {type: DELETE_MEMO_REQUEST}
+}
+
+function deleteMemoSuccess() {
+    return {type: DELETE_MEMO_SUCCESS}
+}
+
+function deleteMemoFailure() {
+    return {type: DELETE_MEMO_FAILURE}
 }
 
 // Side Effects
@@ -131,6 +166,33 @@ export function initiateCreateMemo(memo) {
                 }
 
                 dispatch(createMemoSuccess())
+                dispatch(initiateGetMemos())
+            })
+        })
+    }
+}
+
+export function initiateDeleteMemo(memo) {
+    return function deleteMemoDispatcher(dispatch, getState) {
+        dispatch(deleteMemoRequest())
+        deleteMemo(getState().user.token, memo).then(response => {
+            if (!response.ok) {
+                dispatch(deleteMemoFailure())
+                return
+            }
+
+            response.json().then(json => {
+                if (!json.message) {
+                    dispatch(deleteMemoFailure())
+                    return
+                }
+
+                if (json.message !== 'delete') {
+                    dispatch(deleteMemoFailure())
+                    return
+                }
+
+                dispatch(deleteMemoSuccess())
                 dispatch(initiateGetMemos())
             })
         })

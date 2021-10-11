@@ -1,13 +1,20 @@
-import {Button, Row, Col} from 'react-bootstrap'
-import {useState} from "react";
+import {Button, Row, Col, Toast, ToastContainer} from 'react-bootstrap'
+import {useEffect, useState} from "react";
 import NewMemo from './NewMemo'
 import Memo from "./Memo";
 import LoadingMemo from "./LoadingMemo";
 
-function Memos({handleLogoutRequest, handleCreateMemo, memos, handleDeleteMemo}) {
+function Memos({handleLogoutRequest, handleCreateMemo, memos, handleDeleteMemo, getMemosPending, getMemosFailure}) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+    const [showError, setShowError] = useState(getMemosFailure);
+
+    useEffect(() => {
+        if (getMemosFailure) {
+            setShowError(true)
+        }
+    }, [getMemosFailure])
 
     return (
         <>
@@ -19,11 +26,16 @@ function Memos({handleLogoutRequest, handleCreateMemo, memos, handleDeleteMemo})
             </Row>
             <Row>
                 {
-                    memos ?
+                    memos && !getMemosPending ?
                         memos.map((memo, idx) => <Memo key={idx} memo={memo} handleDeleteMemo={handleDeleteMemo}/>) :
-                        <LoadingMemo/>
+                        <h2>Loading...</h2>
                 }
             </Row>
+            <ToastContainer className="p-3" position='bottom-end'>
+                <Toast bg='danger' onClose={() => setShowError(false)} show={showError} delay={3000} autohide>
+                    <Toast.Body className={'text-white'}>Error retrieving memos</Toast.Body>
+                </Toast>
+            </ToastContainer>
         </>
     )
 }
