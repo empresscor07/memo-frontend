@@ -12,7 +12,9 @@ function App({
                  token,
                  getMemosPending,
                  getMemosFailure,
-                 memos}) {
+                 memos,
+                 createMemoPending,
+                 createMemoFailure}) {
     return (
         <Container>
             {
@@ -24,6 +26,8 @@ function App({
                         handleDeleteMemo={memo => dispatch(initiateDeleteMemo(memo))}
                         getMemosPending={getMemosPending}
                         getMemosFailure={getMemosFailure}
+                        createMemoPending={createMemoPending}
+                        createMemoFailure={createMemoFailure}
                     /> :
                     <Login
                         handleLoginRequest={(username, password) => dispatch(initiateLogin({username, password}))}

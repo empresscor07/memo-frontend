@@ -4,7 +4,16 @@ import NewMemo from './NewMemo'
 import Memo from "./Memo";
 import LoadingMemo from "./LoadingMemo";
 
-function Memos({handleLogoutRequest, handleCreateMemo, memos, handleDeleteMemo, getMemosPending, getMemosFailure}) {
+function Memos({
+                   handleLogoutRequest,
+                   handleCreateMemo,
+                   memos,
+                   handleDeleteMemo,
+                   getMemosPending,
+                   getMemosFailure,
+                   createMemoPending,
+                   createMemoFailure
+}) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -36,6 +45,7 @@ function Memos({handleLogoutRequest, handleCreateMemo, memos, handleDeleteMemo, 
                     <Toast.Body className={'text-white'}>Error retrieving memos</Toast.Body>
                 </Toast>
             </ToastContainer>
+            {createMemoPending && <LoadingMemo/>}
         </>
     )
 }
