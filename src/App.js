@@ -4,7 +4,7 @@ import Memos from "./components/Memos";
 import {createMemo, deleteMemo} from './services/memos'
 import {connect} from "react-redux";
 import {initiateLogin, logout} from "./modules/user";
-import {initiateGetMemos} from "./modules/memos";
+import {initiateCreateMemo, initiateGetMemos} from "./modules/memos";
 
 function App({
                  dispatch,
@@ -32,9 +32,7 @@ function App({
     }
 
     function handleCreateMemo(memo) {
-        createMemo(token, memo).then(data => data.json(), handleError).then(() => {
-            handleRequestMemos()
-        }, handleError).catch(handleError)
+        dispatch(initiateCreateMemo(memo))
     }
 
     function handleDeleteMemo(memo) {

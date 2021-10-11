@@ -1,15 +1,21 @@
-import {requestMemos} from "../services/memos";
+import {requestMemos, createMemo} from "../services/memos";
 
 // Actions
 const GET_MEMOS_REQUEST = 'memos/memos/GET_MEMOS_REQUEST'
 const GET_MEMOS_SUCCESS = 'memos/memos/GET_MEMOS_SUCCESS'
 const GET_MEMOS_FAILURE = 'memos/memos/GET_MEMOS_FAILURE'
 
+const CREATE_MEMO_REQUEST = 'memos/memos/CREATE_MEMO_REQUEST'
+const CREATE_MEMO_SUCCESS = 'memos/memos/CREATE_MEMO_SUCCESS'
+const CREATE_MEMO_FAILURE = 'memos/memos/CREATE_MEMO_FAILURE'
+
 // Reducer
 const initialState = {
     getMemosPending: false,
     getMemosFailure: false,
-    memos: []
+    memos: [],
+    createMemoPending: false,
+    createMemoFailure: false,
 }
 
 export default function reducer(state = initialState, action) {
@@ -32,25 +38,54 @@ export default function reducer(state = initialState, action) {
                 getMemosFailure: true
             }
 
+        case CREATE_MEMO_REQUEST:
+            return {...state, createMemoPending: true}
+
+        case CREATE_MEMO_SUCCESS:
+            return {
+                ...state,
+                createMemoPending: false,
+                createMemoFailure: false
+            }
+
+        case CREATE_MEMO_FAILURE:
+            return {
+                ...state,
+                createMemoPending: false,
+                createMemoFailure: true
+            }
+
         default:
             return state
     }
 }
 
 // Action Creators
-export function getMemosRequest() {
+function getMemosRequest() {
     return {type: GET_MEMOS_REQUEST}
 }
 
-export function getMemosSuccess(memos) {
+function getMemosSuccess(memos) {
     return {
         type: GET_MEMOS_SUCCESS,
         memos: memos
     }
 }
 
-export function getMemosFailure() {
+function getMemosFailure() {
     return {type: GET_MEMOS_FAILURE}
+}
+
+function createMemoRequest() {
+    return {type: CREATE_MEMO_REQUEST}
+}
+
+function createMemoSuccess() {
+    return {type: CREATE_MEMO_SUCCESS}
+}
+
+function createMemoFailure() {
+    return {type: CREATE_MEMO_FAILURE}
 }
 
 // Side Effects
@@ -70,6 +105,33 @@ export function initiateGetMemos() {
                 }
 
                 dispatch(getMemosSuccess(json.memo_list))
+            })
+        })
+    }
+}
+
+export function initiateCreateMemo(memo) {
+    return function createMemoDispatcher(dispatch, getState) {
+        dispatch(createMemoRequest())
+        createMemo(getState().user.token, memo).then(response => {
+            if (!response.ok) {
+                dispatch(createMemoFailure())
+                return
+            }
+
+            response.json().then(json => {
+                if (!json.message) {
+                    dispatch(createMemoFailure())
+                    return
+                }
+
+                if (json.message !== 'created') {
+                    dispatch(createMemoFailure())
+                    return
+                }
+
+                dispatch(createMemoSuccess())
+                dispatch(initiateGetMemos())
             })
         })
     }
