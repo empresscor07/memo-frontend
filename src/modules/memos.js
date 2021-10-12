@@ -62,7 +62,9 @@ export default function reducer(state = initialState, action) {
             }
 
         case DELETE_MEMO_REQUEST:
-            return {...state, deleteMemoPending: true}
+            return {...state,
+                deleteMemoPending: true,
+                deleteMemoFailure: false}
 
         case DELETE_MEMO_SUCCESS:
             return {
@@ -140,8 +142,8 @@ export function initiateGetMemos() {
                 }
 
                 dispatch(getMemosSuccess(json.memo_list))
-            })
-        })
+            }, () => dispatch(getMemosFailure()))
+        }, () => dispatch(getMemosFailure()))
     }
 }
 
@@ -167,8 +169,8 @@ export function initiateCreateMemo(memo) {
 
                 dispatch(createMemoSuccess())
                 dispatch(initiateGetMemos())
-            })
-        })
+            }, () => dispatch(createMemoFailure()))
+        }, () => dispatch(createMemoFailure()))
     }
 }
 
@@ -194,7 +196,7 @@ export function initiateDeleteMemo(memo) {
 
                 dispatch(deleteMemoSuccess())
                 dispatch(initiateGetMemos())
-            })
-        })
+            }, () => dispatch(deleteMemoFailure()))
+        }, () => dispatch(deleteMemoFailure()))
     }
 }

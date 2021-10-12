@@ -12,18 +12,34 @@ function Memos({
                    getMemosPending,
                    getMemosFailure,
                    createMemoPending,
-                   createMemoFailure
+                   createMemoFailure,
+                   deleteMemoPending,
+                   deleteMemoFailure
 }) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const [showError, setShowError] = useState(getMemosFailure);
+    const [showCreateMemoError, setCreateMemoError] = useState(createMemoFailure);
+    const [showDeleteMemoError, setDeleteMemoError] = useState(deleteMemoFailure);
 
     useEffect(() => {
         if (getMemosFailure) {
             setShowError(true)
         }
     }, [getMemosFailure])
+
+    useEffect(() => {
+        if (createMemoFailure) {
+            setCreateMemoError(true)
+        }
+    }, [createMemoFailure])
+
+    useEffect(() => {
+        if (deleteMemoFailure) {
+            setDeleteMemoError(true)
+        }
+    }, [deleteMemoFailure])
 
     return (
         <>
@@ -36,13 +52,21 @@ function Memos({
             <Row>
                 {
                     memos && !getMemosPending ?
-                        memos.map((memo, idx) => <Memo key={idx} memo={memo} handleDeleteMemo={handleDeleteMemo}/>) :
+                        memos.map((memo, idx) => <Memo key={idx} memo={memo}
+                                                       handleDeleteMemo={handleDeleteMemo}
+                                                       deleteMemoPending={deleteMemoPending}/>) :
                         <h2>Loading...</h2>
                 }
             </Row>
             <ToastContainer className="p-3" position='bottom-end'>
                 <Toast bg='danger' onClose={() => setShowError(false)} show={showError} delay={3000} autohide>
                     <Toast.Body className={'text-white'}>Error retrieving memos</Toast.Body>
+                </Toast>
+                <Toast bg='danger' onClose={() => setCreateMemoError(false)} show={showCreateMemoError} delay={3000} autohide>
+                    <Toast.Body className={'text-white'}>Error Creating memo</Toast.Body>
+                </Toast>
+                <Toast bg='danger' onClose={() => setDeleteMemoError(false)} show={showDeleteMemoError} delay={3000} autohide>
+                    <Toast.Body className={'text-white'}>Error deleting memo</Toast.Body>
                 </Toast>
             </ToastContainer>
             {createMemoPending && <LoadingMemo/>}

@@ -84,7 +84,7 @@ export function initiateLogin(credentials) {
 
                 dispatch(loginSuccess(data.token))
                 dispatch(initiateGetMemos())
-            })
-        })
+            }, () => dispatch(loginFailure()))
+        }, () => dispatch(loginFailure()))
     }
 }
